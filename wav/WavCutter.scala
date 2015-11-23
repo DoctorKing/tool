@@ -21,7 +21,7 @@ object WavCutter extends App {
     val bitsRate = sampleRate * bitsPerSample * numChannels
     val byteRate = sampleRate * bitsPerSample * numChannels / 8
     val audioSize = dateSize(srcRaf)
-    val totalSeconds = math.round(audioSize.toDouble / bitsRate).toInt
+    val totalSeconds = math.round(audioSize.toDouble / byteRate).toInt
     if (start >= totalSeconds || start < 0) {
         throw new IllegalArgumentException(
             s"start seconds should be greater than 0 and less than total  $totalSeconds seconds")
@@ -85,7 +85,11 @@ object WavCutter extends App {
 
     def dateSize(raf: RandomAccessFile) = {
         raf.seek(40)
-        Integer.reverse(raf.readInt())
+        val ll = raf.readUnsignedByte()
+        val lh = raf.readUnsignedByte()
+        val hl = raf.readUnsignedByte()
+        val hh = raf.readUnsignedByte()
+        (hh << 24) + (hl << 16) + (lh << 8) + ll
     }
 }
 
